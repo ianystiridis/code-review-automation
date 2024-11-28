@@ -5,7 +5,6 @@ import time
 from datetime import datetime
 from dotenv import load_dotenv
 
-# Load the GitHub API token from the .env file
 load_dotenv()
 GITHUB_API_TOKEN = os.getenv('GITHUB_API_TOKEN')
 
@@ -13,16 +12,12 @@ if not GITHUB_API_TOKEN:
     print("Error: GitHub API token not found in .env file.")
     exit(1)
 
-# Set up the request headers with the API token
 headers = {
     'Authorization': f'token {GITHUB_API_TOKEN}',
     'Accept': 'application/vnd.github.v3+json'
 }
 
-# Global variable to track remaining requests
 remaining_requests = 0
-
-# CSV file to save the data
 csv_file = 'contributors_data.csv'
 
 def check_rate_limit():
@@ -45,7 +40,7 @@ def handle_rate_limit():
     """Handle rate limit when remaining requests are exhausted."""
     reset_time = check_rate_limit()
     current_time = int(time.time())
-    sleep_time = reset_time - current_time + 5  # Adding a buffer of 5 seconds
+    sleep_time = reset_time - current_time + 5
     if sleep_time > 0:
         reset_datetime = datetime.fromtimestamp(reset_time).strftime('%Y-%m-%d %H:%M:%S')
         print(f"Requests finished. Sleeping until {reset_datetime} (in {sleep_time} seconds).")
@@ -59,7 +54,7 @@ def decrement_requests():
     remaining_requests -= 1
     if remaining_requests <= 1:
         handle_rate_limit()
-        remaining_requests = 5000  # Reset the remaining requests after sleeping
+        remaining_requests = 5000
 
 def is_bot(user_data):
     """Determine if the user is a bot."""
@@ -153,7 +148,7 @@ def fetch_commits(username, max_pages=10):
         except requests.exceptions.RequestException as e:
             print(f"Error fetching commits for {username}: {e}")
             break
-    return commits[:100]  # Limit to first 100 commits
+    return commits[:100]
 
 def fetch_pull_requests(username):
     """Fetch pull requests created by the user."""
@@ -230,14 +225,12 @@ def fetch_commit_stats(commit_sha):
 
 def main():
     global owner, repo
-    # Specify the repository (owner/repo)
     repository = input("Enter the repository (format: owner/repo, e.g., tensorflow/tensorflow): ")
     if not repository:
         repository = 'tensorflow/tensorflow'
 
     owner, repo = repository.split('/')
 
-    # Check rate limit at the start
     check_rate_limit()
 
     contributors = fetch_contributors()
